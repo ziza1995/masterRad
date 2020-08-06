@@ -11,6 +11,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 
+import java.time.Instant;
+
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Data
 @Entity
 //@Builder
@@ -18,15 +22,16 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Table(name = "user")
 public class User {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long userId;
-    @NotBlank(message = "Username is requied")
-    private String userName;
+    @NotBlank(message = "Username is required")
+    private String username;
     @NotBlank(message = "Password is required")
     private String password;
     @Email
-    @NotEmpty
+    @NotEmpty(message = "Email is required")
     private String email;
+    private Instant created;
+    private boolean enabled;
 }
