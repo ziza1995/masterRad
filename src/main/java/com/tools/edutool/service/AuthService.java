@@ -2,6 +2,7 @@ package com.tools.edutool.service;
 
 import com.tools.edutool.dto.AuthenticationResponse;
 import com.tools.edutool.dto.LoginRequest;
+import com.tools.edutool.dto.RefreshTokenRequest;
 import com.tools.edutool.dto.RegisterRequest;
 import com.tools.edutool.model.NotificationEmail;
 import com.tools.edutool.model.User;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +36,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
-//    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenService refreshTokenService;
 
     public void signup(RegisterRequest registerRequest) {
         User user = new User();
@@ -88,22 +90,22 @@ public class AuthService {
         String token = jwtProvider.generateToken(authenticate);
         return AuthenticationResponse.builder()
                 .authenticationToken(token)
-//                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
-//                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(loginRequest.getUsername())
                 .build();
     }
-//
-//    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
-//        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
-//        String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
-//        return AuthenticationResponse.builder()
-//                .authenticationToken(token)
-//                .refreshToken(refreshTokenRequest.getRefreshToken())
-//                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
-//                .username(refreshTokenRequest.getUsername())
-//                .build();
-//    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(refreshTokenRequest.getUsername())
+                .build();
+    }
 
     public boolean isLoggedIn() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
