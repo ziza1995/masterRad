@@ -3,6 +3,7 @@ package com.tools.edutool.service;
 import com.tools.edutool.model.User;
 import com.tools.edutool.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,9 @@ import static java.util.Collections.singletonList;
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
@@ -32,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new org.springframework.security
                 .core.userdetails.User(user.getUsername(), user.getPassword(),
                 user.isEnabled(), true, true,
-                true, getAuthorities("USER"));
+                !loginAttemptService.isBlocked(username), getAuthorities("USER"));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(String role) {
