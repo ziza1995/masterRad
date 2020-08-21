@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.AuthenticationFailedException;
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -38,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) throws AuthenticationFailedException {
         return authService.login(loginRequest);
     }
 
@@ -57,5 +58,11 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody String username) {
         loginAttemptService.loginSucceeded(username);
         return ResponseEntity.status(OK).body("Reset Password Successfully!!");
+    }
+
+    @PostMapping("/checkEncodedPassword")
+    public ResponseEntity<String> checkEncodedPassword(@RequestBody LoginRequest loginRequest) throws AuthenticationFailedException {
+        authService.checkEncodedPassword(loginRequest);
+        return ResponseEntity.status(OK).body("Password is good!!");
     }
 }
