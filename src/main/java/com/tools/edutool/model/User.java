@@ -28,6 +28,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long userId;
+    @Column(unique = true)
     @NotBlank(message = "Username is required")
     private String username;
     @NotBlank(message = "Password is required")
