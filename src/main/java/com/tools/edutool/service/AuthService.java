@@ -48,12 +48,6 @@ public class AuthService {
         user.setEnabled(true);
 
         userRepository.save(user);
-
-        String token = generateVerificationToken(user);
-        mailService.sendMail(new NotificationEmail("Please Activate your Account",
-                user.getEmail(), "Thank you for signing up to Rate the App, " +
-                "please click on the below url to activate your account : " +
-                "http://localhost:8080/api/auth/accountVerification/" + token));
     }
     
     private void fetchUserAndEnable(VerificationToken verificationToken) {
