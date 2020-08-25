@@ -13,14 +13,13 @@ import com.tools.edutool.exceptions.EduToolException;
 import com.tools.edutool.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.AuthenticationFailedException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,9 +33,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
-    private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+
+    private static final String SUCCESSFUL_LOGIN_MESSAGE = "Login successful";
+    private static final String FAILED_LOGIN_MESSAGE = "Login failed";
 
     public void signup(RegisterRequest registerRequest) {
         User user = new User();
@@ -44,25 +45,17 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setCreated(Instant.now());
-        user.setEnabled(false);
+        user.setEnabled(true);
 
         userRepository.save(user);
 
         String token = generateVerificationToken(user);
         mailService.sendMail(new NotificationEmail("Please Activate your Account",
-                user.getEmail(), "Thank you for signing up to Spring Reddit, " +
+                user.getEmail(), "Thank you for signing up to Rate the App, " +
                 "please click on the below url to activate your account : " +
                 "http://localhost:8080/api/auth/accountVerification/" + token));
     }
-
-//    @Transactional(readOnly = true)
-//    public User getCurrentUser() {
-//        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
-//                getContext().getAuthentication().getPrincipal();
-//        return userRepository.findByUsername(principal.getUsername())
-//                .orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
-//    }
-//
+    
     private void fetchUserAndEnable(VerificationToken verificationToken) {
         String username = verificationToken.getUser().getUsername();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EduToolException("User not found with name - " + username));
@@ -85,16 +78,19 @@ public class AuthService {
         fetchUserAndEnable(verificationToken.orElseThrow(() -> new EduToolException("Invalid Token")));
     }
 
-    public AuthenticationResponse login(LoginRequest loginRequest) {
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
-        String token = jwtProvider.generateToken(authenticate);
+    public AuthenticationResponse login(LoginRequest loginRequest) throws AuthenticationFailedException {
+        Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
+        String password = user.orElseThrow(() -> new EduToolException("Invalid username")).getPassword();
+        String responseMessage;
+        if(password != null  && password.equals(loginRequest.getPassword())){
+            responseMessage = SUCCESSFUL_LOGIN_MESSAGE;
+        } else{
+            throw new AuthenticationFailedException(FAILED_LOGIN_MESSAGE);
+        }
+
         return AuthenticationResponse.builder()
-                .authenticationToken(token)
-                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
-                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(loginRequest.getUsername())
+                .responseMessage(responseMessage)
                 .build();
     }
 
@@ -109,8 +105,12 @@ public class AuthService {
                 .build();
     }
 
-    public boolean isLoggedIn() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
+    public boolean checkEncodedPassword(LoginRequest loginRequest) throws AuthenticationFailedException {
+        Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
+        String password = user.orElseThrow(() -> new EduToolException("Invalid username")).getPassword();
+        if(password.equals(loginRequest.getPassword())){
+            throw new AuthenticationFailedException("PASSWORD_IS_NOT_ENCODED");
+        }
+        return true;
     }
 }
