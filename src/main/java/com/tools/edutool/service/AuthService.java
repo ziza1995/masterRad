@@ -29,10 +29,8 @@ import java.util.UUID;
 @Transactional
 public class AuthService {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
-    private final MailService mailService;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
 
