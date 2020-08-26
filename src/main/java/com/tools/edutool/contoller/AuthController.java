@@ -65,4 +65,10 @@ public class AuthController {
         authService.checkEncodedPassword(loginRequest);
         return ResponseEntity.status(OK).body("Password is good!!");
     }
+
+    @PostMapping("/checkIfVerificationTokenExists")
+    public ResponseEntity<String> checkIfVerificationTokenExists(@RequestBody LoginRequest loginRequest) throws AuthenticationFailedException {
+        authService.checkIfVerificationTokenExists(loginRequest);
+        return ResponseEntity.status(OK).body("Verification token exists!!");
+    }
 }

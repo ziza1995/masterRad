@@ -97,11 +97,22 @@ public class AuthService {
                 .build();
     }
 
+    // for testing
+
     public boolean checkEncodedPassword(LoginRequest loginRequest) throws AuthenticationFailedException {
         Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
         String password = user.orElseThrow(() -> new EduToolException("Invalid username")).getPassword();
         if(password.equals(loginRequest.getPassword())){
             throw new AuthenticationFailedException("PASSWORD_IS_NOT_ENCODED");
+        }
+        return true;
+    }
+
+    public boolean checkIfVerificationTokenExists(LoginRequest loginRequest) throws AuthenticationFailedException {
+        Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUser(user.orElseThrow(() -> new EduToolException("Invalid username")));
+        if(verificationToken == null){
+            throw new AuthenticationFailedException("THERE_IS_NO_VERIFICATION_TOKEN");
         }
         return true;
     }
