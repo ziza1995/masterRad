@@ -5,13 +5,13 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoginAttemptService {
 
     private final int MAX_ATTEMPT = 3;
+    // cache for failed login attempts
     private LoadingCache<String, Integer> attemptsCache;
 
     public LoginAttemptService() {
@@ -25,25 +25,15 @@ public class LoginAttemptService {
     }
 
     public void loginSucceeded(String key) {
-        attemptsCache.invalidate(key);
+        // TODO
     }
 
     public void loginFailed(String key) {
-        int attempts = 0;
-        try {
-            attempts = attemptsCache.get(key);
-        } catch (ExecutionException e) {
-            attempts = 0;
-        }
-        attempts++;
-        attemptsCache.put(key, attempts);
+        // TODO
     }
 
     public boolean isBlocked(String key) {
-        try {
-            return attemptsCache.get(key) >= MAX_ATTEMPT;
-        } catch (ExecutionException e) {
-            return false;
-        }
+        // TODO
+        return false;
     }
 }
