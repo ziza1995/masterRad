@@ -26,7 +26,7 @@ public class AuthController {
     private final LoginAttemptService loginAttemptService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) throws Exception {
         authService.signup(registerRequest);
         return new ResponseEntity<>("User Registration Successful",
                 OK);
