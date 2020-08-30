@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AccountDto {
 
+    private String name;
     private String username;
     private String accountNumber;
 }

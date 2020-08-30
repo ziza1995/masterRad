@@ -22,6 +22,21 @@ public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
+    public AccountDto update(AccountDto accountDto){
+        Optional<User> userOptional = userRepository.findByUsername(accountDto.getUsername());
+        User user = userOptional.orElseThrow(() -> new EduToolException("No user " +
+                "Found with username : " + accountDto.getUsername()));
+        Optional<Account> accountOptional =  accountRepository.findByUser(user);
+        Account account = accountOptional.orElseThrow(() -> new EduToolException("No user " +
+                "Found with username : " + accountDto.getUsername()));
+
+        account.setAccountNumber(accountDto.getAccountNumber());
+
+        AccountDto accountDtoResponse = mapDataToUserDetailsDto(user, account);
+
+        return  accountDtoResponse;
+    }
+
     public AccountDto getAccountById(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         User user = userOptional.orElseThrow(() -> new EduToolException("No user " +
