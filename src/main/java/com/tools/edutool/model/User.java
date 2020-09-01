@@ -15,12 +15,13 @@ import javax.persistence.*;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
 @Entity
-//@Builder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user")
@@ -40,6 +41,7 @@ public class User implements UserDetails {
     private boolean enabled;
     private int numberOfFailedAttempts;
     private boolean blocked;
+    transient private List<GrantedAuthority> authorities;
 
     public void incrementNumberOfFailedAttempts(){
         numberOfFailedAttempts++;
