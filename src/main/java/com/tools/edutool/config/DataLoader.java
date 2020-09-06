@@ -28,7 +28,7 @@ public class DataLoader implements ApplicationRunner {
         Role role = new Role().builder().id(1).user(first).name("admin").build();
         roleRepository.save(role);
 
-        Permission permission = new Permission().builder().id(1).name("USER").role(role).build();
+        Permission permission = new Permission().builder().id(1).name("TEST").role(role).build();
         permissionRepository.save(permission);
     }
 }

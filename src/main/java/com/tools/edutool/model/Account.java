@@ -31,6 +31,8 @@ public class Account {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String accountNumber;
+    private String accountType;
+    private String bankName;
     @OneToOne(fetch = LAZY)
     private User user;
 

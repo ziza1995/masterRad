@@ -37,10 +37,16 @@ public class User implements UserDetails {
     @Email
     @NotEmpty(message = "Email is required")
     private String email;
+    private String name;
+    private String surname;
+    private String address;
+    private String city;
+    private String mobilePhone;
     private Instant created;
     private boolean enabled;
     private int numberOfFailedAttempts;
     private boolean blocked;
+
     transient private List<GrantedAuthority> authorities;
 
     public void incrementNumberOfFailedAttempts(){
