@@ -4,11 +4,9 @@ import com.tools.edutool.dto.AuthenticationResponse;
 import com.tools.edutool.dto.LoginRequest;
 import com.tools.edutool.dto.RefreshTokenRequest;
 import com.tools.edutool.dto.RegisterRequest;
-import com.tools.edutool.model.Account;
 import com.tools.edutool.model.NotificationEmail;
 import com.tools.edutool.model.User;
 import com.tools.edutool.model.VerificationToken;
-import com.tools.edutool.repository.AccountRepository;
 import com.tools.edutool.repository.UserRepository;
 import com.tools.edutool.repository.VerificationTokenRepository;
 import com.tools.edutool.exceptions.EduToolException;
@@ -34,7 +32,6 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final AccountRepository accountRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
@@ -51,10 +48,6 @@ public class AuthService {
         user.setEnabled(true);
 
         userRepository.save(user);
-
-        Account newAccount = new Account();
-        newAccount.setUser(user);
-        accountRepository.save(newAccount);
     }
 
     private void fetchUserAndEnable(VerificationToken verificationToken) {
